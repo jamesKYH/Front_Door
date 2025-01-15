@@ -33,7 +33,7 @@ def main():
     if "data" not in st.session_state:
         if df is not None:
             st.session_state["data"] = df
-            st.success("데이터 세션에 저장")
+            st.success("데이터 세션에 저장!")
         else:
             st.error("데이터 못불러옴.")
 
