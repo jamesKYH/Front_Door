@@ -58,51 +58,51 @@ selected_region = st.sidebar.selectbox("창업 예정 지역을 선택하세요"
 
 
 
+# 파일 읽기 함수
 def load_csv_file(file_path):
-    
-    if os.path.exists(file_path):
-        try:
-            df = pd.read_csv(file_path)
-            return df
-        except Exception as e:
-            st.write('에러 발생.',e)
-            return None
-    else:
-        st.write("파일 x.")
+    try:
+        df = pd.read_csv(file_path, encoding="utf-8")
+        return df
+    except Exception as e:
+        st.write("에러 발생:", e)
         return None
 
+
+# 메인 함수
 def main():
-    file_path = '/ITStudy/dataset/tbsh_gyeonggi_day_포천시_202408.csv'
-    df = load_csv_file(file_path)
-    
-    
-    if "data" not in st.session_state:
+    st.title("CSV 파일 병합 및 데이터 미리보기")
+
+    # 파일 경로 템플릿
+    base_url = 'https://woori-fisa-bucket.s3.ap-northeast-2.amazonaws.com/fisa04-card/tbsh_gyeonggi_day_2023{}_pochun.csv'
+
+    # 데이터를 합칠 데이터프레임 초기화
+    combined_df = pd.DataFrame()
+
+    # 202301부터 202312까지 반복 처리
+    for month in range(1, 13):
+        month_str = f"{month:02d}"  # 월을 두 자리로 포맷팅
+        file_path = base_url.format(month_str)
+
+        # 파일 불러오기
+        with st.spinner(f"{month_str}월 데이터 로드 중..."):
+            df = load_csv_file(file_path)
+
+        # 데이터가 성공적으로 로드된 경우 합치기
         if df is not None:
-            st.session_state["data"] = df
-            st.success("데이터 세션에 저장!")
+            st.success(f"{month_str}월 데이터 로드 완료!")
+            combined_df = pd.concat([combined_df, df], ignore_index=True)
         else:
-            st.error("데이터 못불러옴.")
-    
-    
-    if df is not None:
-        pass
-        
+            st.error(f"{month_str}월 파일을 불러오지 못했습니다.")
+
+    # 데이터 합친 후 미리보기
+    if not combined_df.empty:
+        st.write("병합된 데이터 미리보기:")
+        st.dataframe(combined_df.head(50))  # 상위 50개 행 출력
     else:
-        st.write("파일을 불러올 수 없음.")
-    
-    
-if __name__ == "__main__":
-    main()
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+        st.error("병합할 데이터가 없습니다.")
+
+    st.success("모든 작업 완료!")
+
+
 if __name__ == "__main__":
     main()
