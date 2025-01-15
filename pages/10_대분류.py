@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 from main import get_combined_sampled_data  # 메인 코드에서 함수 가져오기
 
+st.title("어떤 분야가 좋을까?")
 
 
 # 페이지 설정
