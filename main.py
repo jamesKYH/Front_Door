@@ -39,27 +39,15 @@ st.markdown("""
             오류 문의: dahee7446@gmail.com
             """)
 # 지역 선택 기능 추가
+# 지역 선택 기능 추가
 st.sidebar.header("지역 선택")
-# 대한민국 리스트
-regions = [
-    "서울", "부산", "대구", "인천",
-    "광주", "대전", "울산", "세종",
-    "경기도", "충북", "충남", "전남", "경북",
-    "경남", "강원", "전북", "제주"]
-# 단일 지역 선택
+regions = ['포천']
 selected_region = st.sidebar.selectbox("창업 예정 지역을 선택하세요", regions)
 
-# 선택된 지역에 따른 데이터 필터링
-# 데이터프레임 예제 코드 (실제 데이터와 연결 필요)
-# df = pd.read_csv("path_to_your_data.csv")
-# filtered_df = df[df['region'] == selected_region]
-# st.write("### 지역별 데이터")
-# st.dataframe(filtered_df)
-
-
-
-# 파일 읽기 함수
+# 파일 읽기 함수 (캐싱)
+@st.cache_data
 def load_csv_file(file_path):
+    """CSV 파일을 읽어오는 함수"""
     try:
         df = pd.read_csv(file_path, encoding="utf-8")
         return df
@@ -67,15 +55,13 @@ def load_csv_file(file_path):
         st.write("에러 발생:", e)
         return None
 
-
-# 메인 함수
-def main():
-    st.title("CSV 파일 병합 및 데이터 미리보기")
-
+# 데이터 병합 및 샘플링 함수 (캐싱)
+@st.cache_data
+def get_combined_sampled_data():
+    """2023년 데이터를 병합하고 샘플링"""
     # 파일 경로 템플릿
     base_url = 'https://woori-fisa-bucket.s3.ap-northeast-2.amazonaws.com/fisa04-card/tbsh_gyeonggi_day_2023{}_pochun.csv'
 
-    # 데이터를 합칠 데이터프레임 초기화
     combined_df = pd.DataFrame()
 
     # 202301부터 202312까지 반복 처리
@@ -83,26 +69,37 @@ def main():
         month_str = f"{month:02d}"  # 월을 두 자리로 포맷팅
         file_path = base_url.format(month_str)
 
-        # 파일 불러오기
-        with st.spinner(f"{month_str}월 데이터 로드 중..."):
-            df = load_csv_file(file_path)
-
-        # 데이터가 성공적으로 로드된 경우 합치기
+        df = load_csv_file(file_path)
         if df is not None:
-            st.success(f"{month_str}월 데이터 로드 완료!")
             combined_df = pd.concat([combined_df, df], ignore_index=True)
-        else:
-            st.error(f"{month_str}월 파일을 불러오지 못했습니다.")
 
-    # 데이터 합친 후 미리보기
+    # 데이터 샘플링
     if not combined_df.empty:
-        st.write("병합된 데이터 미리보기:")
-        st.dataframe(combined_df.head(50))  # 상위 50개 행 출력
+        sample_ratio = 0.01  # 샘플링 비율 (1%)
+        sampled_df = combined_df.sample(frac=sample_ratio, random_state=42)
+        return sampled_df
     else:
-        st.error("병합할 데이터가 없습니다.")
+        return pd.DataFrame()  # 빈 데이터프레임 반환
+
+
+# 메인 함수
+def main():
+    st.title("CSV 파일 병합 및 데이터 미리보기")
+
+    # 병합 및 샘플링된 데이터 가져오기
+    with st.spinner("데이터 로드 중..."):
+        sampled_df = get_combined_sampled_data()
+
+    # 데이터 표시
+    if not sampled_df.empty:
+        st.write("샘플링된 데이터 미리보기:")
+        st.dataframe(sampled_df.head(50))
+    else:
+        st.error("데이터를 로드할 수 없습니다.")
 
     st.success("모든 작업 완료!")
 
 
 if __name__ == "__main__":
     main()
+
