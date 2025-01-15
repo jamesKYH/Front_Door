@@ -14,3 +14,4 @@ import pandas as pd
 test_input = st.text_input("텍스트를 입력하세요")
 
 st.text(test_input)
+
