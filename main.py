@@ -74,16 +74,17 @@ st.sidebar.header("지역 선택")
 # 한글 지역명과 URL에 사용될 영문명을 매핑한 딕셔너리
 region_mapping = {
     "포천시": "pochun",
-    "수원시": "suwon",
-    '광명시' : 'kwangmyeong',
-'부천시':'bucheon',
+#     "수원시": "suwon",
+#     '광명시' : 'kwangmyeong',
+# '부천시':'bucheon',
 
-'시흥시' : 'siheung',
-'안산시' : 'ansan',
-'용인시' : 'yongin',
-'포천시' : 'pochun',
-'하남시' : 'hanam',
-'화성시' : 'hwasung'}
+# '시흥시' : 'siheung',
+# '안산시' : 'ansan',
+# '용인시' : 'yongin',
+# '포천시' : 'pochun',
+# '하남시' : 'hanam',
+# '화성시' : 'hwasung'
+}
 
 
 selected_region = st.sidebar.selectbox("창업 예정 지역을 선택하세요", list(region_mapping.keys()))
