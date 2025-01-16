@@ -9,7 +9,10 @@ import os
 import plotly.express as px
 from openai_utils import fetch_region_info
 from dotenv import load_dotenv
+import ssl
 
+# SSL 인증서 검증 비활성화
+ssl._create_default_https_context = ssl._create_unverified_context
 
 # 페이지 설정
 st.set_page_config(page_title="창업 정보 플랫폼", layout="wide", page_icon="🏢")
