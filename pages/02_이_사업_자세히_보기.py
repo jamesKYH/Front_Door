@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from main import get_combined_sampled_data  # 메인 코드에서 함수 가져오기
 # 페이지 설정 (스크립트의 첫 번째 명령어로 이동)
 st.set_page_config(page_title="업종 대분류 및 소분류 분석", layout="wide")
