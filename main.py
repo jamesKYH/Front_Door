@@ -133,7 +133,17 @@ def get_combined_sampled_data(region):
     else:
         return pd.DataFrame()  # 빈 데이터프레임 반환
 
+def clear_cache_on_region_change(selected_region):
+    """
+    지역이 변경되었는지 확인하고, 변경되었으면 캐시를 초기화
+    """
+    if "previous_region" not in st.session_state:
+        st.session_state["previous_region"] = selected_region
 
+    # 지역이 변경된 경우
+    if st.session_state["previous_region"] != selected_region:
+        st.cache_data.clear()  # 캐시 초기화
+        st.session_state["previous_region"] = selected_region
 
 # 메인 함수
 def main():
@@ -141,7 +151,7 @@ def main():
     st.subheader("📊 지역별 데이터 로드")
     st.write(f"선택된 지역: {selected_region}")
     
-    
+    clear_cache_on_region_change(selected_region)
      # 특색 정보 표시 컨테이너
     info_container = st.empty()
 
@@ -181,7 +191,7 @@ def main():
                     st.write("📌"*cnt)
                     
                 with col2:
-                    st.write(f"**No.{cnt} 이거 아셨나요?** \n\n{region_info}")
+                    st.write(f"**No.{cnt} 요건 몰랐지?** \n\n{region_info}")
                     cnt+=1
                 time.sleep(3)  # 3초 대기
 
