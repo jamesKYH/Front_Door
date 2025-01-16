@@ -4,17 +4,16 @@ import plotly.express as px
 import plotly.graph_objects as go
 from main import get_combined_sampled_data  # 메인 코드에서 함수 가져오기
 
+# 페이지 설정: 가장 처음에 위치
 st.set_page_config(page_title="대분류 관련 그래프 출력", layout="wide")
 
-
-
+# Streamlit 제목
 st.title("어떤 분야가 좋을까?")
-#페이지 설정
-
 st.title(":막대_차트: 업종대분류 관련 정보")
 st.markdown("이 페이지에서는 업종대분류에 관련된 다양한 내용을 제공합니다.")
-# 캐시된 데이터 가져오기
-sampled_df = get_combined_sampled_data()
+
+region_url = st.session_state["region_url"]
+sampled_df = get_combined_sampled_data(region_url)
 if not sampled_df.empty:
     st.write("샘플링된 데이터 미리보기:")
     st.dataframe(sampled_df)
@@ -22,6 +21,7 @@ else:
     st.error("데이터를 불러올 수 없습니다.")
     st.stop()
 df = sampled_df
+
 
 
 # 'ta_ymd' 열에서 월(month) 정보 추출

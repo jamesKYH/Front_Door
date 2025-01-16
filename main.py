@@ -110,7 +110,7 @@ selected_region = st.sidebar.selectbox("창업 예정 지역을 선택하세요"
 # 선택된 지역의 영문명을 가져오기
 region_url = region_mapping[selected_region]
 
-
+st.session_state["region_url"] = region_url 
 
 
 
