@@ -9,7 +9,10 @@ import os
 import plotly.express as px
 from openai_utils import fetch_region_info
 from dotenv import load_dotenv
+import ssl
 
+# SSL 인증서 검증 비활성화
+ssl._create_default_https_context = ssl._create_unverified_context
 
 # 페이지 설정
 st.set_page_config(page_title="창업 정보 플랫폼", layout="wide", page_icon="🏢")
@@ -123,35 +126,31 @@ def load_csv_file(file_path):
         df = pd.read_csv(file_path, encoding="utf-8")
         return df
     except Exception as e:
-        st.write("에러 발생:")
+        st.error(f"파일 로드 실패: {file_path}\n오류 내용: {e}")
         return None
 
 # 데이터 병합 및 샘플링 함수 (캐싱)
-@st.cache_data
 def get_combined_sampled_data(region):
     """2023년 데이터를 병합하고 샘플링"""
-    # 파일 경로 템플릿
     base_url = f'https://woori-fisa-bucket.s3.ap-northeast-2.amazonaws.com/fisa04-card/tbsh_gyeonggi_day_2023{{}}_{region}.csv'
-
     combined_df = pd.DataFrame()
 
-    # 202301부터 202312까지 반복 처리
     for month in range(1, 13):
-        month_str = f"{month:02d}"  # 월을 두 자리로 포맷팅
+        month_str = f"{month:02d}"
         file_path = base_url.format(month_str)
 
         df = load_csv_file(file_path)
         if df is not None:
             combined_df = pd.concat([combined_df, df], ignore_index=True)
+        else:
+            st.warning(f"{month_str}월 데이터 로드 실패")
 
-    # 데이터 샘플링
     if not combined_df.empty:
-        sample_ratio = 0.01  # 샘플링 비율 (1%)
+        sample_ratio = 0.01
         sampled_df = combined_df.sample(frac=sample_ratio, random_state=42)
         return sampled_df
     else:
-        return pd.DataFrame()  # 빈 데이터프레임 반환
-
+        return pd.DataFrame()
 
 
 # 메인 함수
