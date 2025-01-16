@@ -23,7 +23,7 @@ st.markdown(
 
 
 if "region_url" not in st.session_state:
-    st.warning("지역을 먼저 선택하세요. 좌측 사이드바에서 지역을 선택해 주세요.")
+    st.warning("지역을 먼저 선택하세요. 좌측 사이드바 main에서 지역을 선택해 주세요.")
     st.stop()  # 이후 코드를 실행하지 않음
 # 캐시된 데이터 가져오기
 region_url = st.session_state["region_url"]
