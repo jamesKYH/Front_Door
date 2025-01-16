@@ -9,7 +9,8 @@ st.set_page_config(page_title="대분류 및 소분류 관련 그래프 출력",
 st.title(":막대_차트: 업종대분류 및 소분류 관련 정보")
 st.markdown("이 페이지에서는 업종대분류 및 소분류에 관련된 다양한 내용을 제공합니다.")
 # 캐시된 데이터 가져오기
-sampled_df = get_combined_sampled_data()
+region_url = st.session_state["region_url"]
+sampled_df = get_combined_sampled_data(region_url)
 if not sampled_df.empty:
     st.write("샘플링된 데이터 미리보기:")
     st.dataframe(sampled_df)

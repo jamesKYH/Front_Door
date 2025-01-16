@@ -10,7 +10,7 @@ import plotly.express as px
 from openai_utils import fetch_region_info
 from dotenv import load_dotenv
 import ssl
-
+import threading
 # SSL 인증서 검증 비활성화
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -179,49 +179,49 @@ def main():
             info_container.info(f"그거 아셨나요? {region_info}")
             time.sleep(3)
 
-    # 병렬적으로 특색 정보 갱신 시작
-    import threading
-    info_thread = threading.Thread(target=update_region_info)
-    info_thread.start()
+    if "region_url" in st.session_state:    # 병렬적으로 특색 정보 갱신 시작
         
-        
-    # 병합 및 샘플링된 데이터 가져오기
-    with st.spinner("데이터 로드 중..."):
-        start_time = time.time()
-        cnt=1
-        while True:
-            elapsed_time = time.time() - start_time
-            # 데이터 로드가 완료되었는지 확인
-            if elapsed_time > 10:  # 데이터 로드 시간 (10초) 기준
-                break
+        info_thread = threading.Thread(target=update_region_info)
+        info_thread.start()
             
-            # 지역 특색 정보 갱신
-            region_info = fetch_region_info(selected_region)
-
-            # UI 개선: 그거 아셨나요? 부분
-            col1, col2 = st.columns([0.1, 0.9])
-            with col1:
-                st.write("📌"*cnt)
+        # 병합 및 샘플링된 데이터 가져오기
+        with st.spinner("데이터 로드 중..."):
+            start_time = time.time()
+            cnt=1
+            while True:
+                elapsed_time = time.time() - start_time
+                # 데이터 로드가 완료되었는지 확인
+                if elapsed_time > 10:  # 데이터 로드 시간 (10초) 기준
+                    break
                 
-            with col2:
-                st.write(f"**No.{cnt} 이거 아셨나요?** \n\n{region_info}")
-                cnt+=1
-            time.sleep(3)  # 3초 대기
+                # 지역 특색 정보 갱신
+                region_info = fetch_region_info(selected_region)
 
-        # 데이터 로드 완료 후 데이터 병합 및 샘플링
-        sampled_df = get_combined_sampled_data(region_url)
+                # UI 개선: 그거 아셨나요? 부분
+                col1, col2 = st.columns([0.1, 0.9])
+                with col1:
+                    st.write("📌"*cnt)
+                    
+                with col2:
+                    st.write(f"**No.{cnt} 이거 아셨나요?** \n\n{region_info}")
+                    cnt+=1
+                time.sleep(3)  # 3초 대기
 
-    # 특색 정보 갱신 종료
-    info_thread.join()
+            # 데이터 로드 완료 후 데이터 병합 및 샘플링
+            sampled_df = get_combined_sampled_data(region_url)
 
-    # 데이터 표시
-    if not sampled_df.empty:
-        st.write(f"**{selected_region} 지역 데이터 로드 완료!**")
+        # 특색 정보 갱신 종료
+        info_thread.join()
+
+        # 데이터 표시
+        if not sampled_df.empty:
+            st.write(f"**{selected_region} 지역 데이터 로드 완료!**")
+        else:
+            st.error(f"**{selected_region} 지역 데이터를 로드할 수 없습니다.**")
+
+        st.success("모든 작업 완료! 이제 좌측 상단 대분류로 이동해주세요")
     else:
-        st.error(f"**{selected_region} 지역 데이터를 로드할 수 없습니다.**")
-
-    st.success("모든 작업 완료! 이제 좌측 상단 대분류로 이동해주세요")
-
+        st.info("좌측 사이드바에서 지역을 먼저 선택하세요.")
 
 
 if __name__ == "__main__":
